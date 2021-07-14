@@ -7,10 +7,17 @@
 	<body>
 		Body
   </body>
-  <script src="demo.js"></script>
-		// Wrap _greeet as js function
-		<script>
-		const greet = cwrap('greet', 'string', ['string'])
 
+	<script src="imports.js"></script>
+		<script>
+			// Wrap _greeet as js function
+		const greet = cwrap('greet', 'string', ['string'])
+		function getNum(){
+			return 22
+		}
+
+		function getStr(){
+			return "Hello from js"
+		}
   </script>
 </html>
