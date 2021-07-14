@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+	<head>
+
+		<title>Webassembly</title>
+	</head>
+	<body>
+		Body
+  </body>
+  <script>
+    // 20 pages: 20 * 64kb = 1.25 mbs
+    // 2 pages: 20 * 64kb = 128 kbs
+    const wasmMemory = new WebAssembly.Memory({
+      initial: 20
+    })
+
+    const readMemoryStr = (offset, length) =>{
+      const stringBuffer = new Uint8Array(wasmMemory.buffer, offset, length);
+      const str = new TextDecoder().decode(stringBuffer)
+      window.dispatchEvent(new CustomEvent('wasmValue', {
+        detail: str
+      }))
+    }
+
+    window.addEventListener('wasmValue', event=>{
+      console.log("received str")
+      console.log(event.detail)
+    })
+    //Webassembly code
+    // env because that's the default name for environment importet by C
+    const imports ={
+      env:{
+        numLog: console.log,
+        strLog: readMemoryStr,
+        memory: wasmMemory
+      }
+    }
+    WebAssembly.instantiateStreaming( fetch('/main.wasm'), imports).then((wasm) =>{
+      window.wasm = wasm
+      console.log('Wasm ready')
+      // For inspections
+      // WebAssembly.Module.exports.getNumber(33)
+      wasm.instance.exports.getNumber(33)
+      
+      console.log(WebAssembly.Module.imports(wasm.module))
+      console.log(WebAssembly.Module.exports(wasm.module))
+    })
+  </script>
+</html>
